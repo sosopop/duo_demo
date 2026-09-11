@@ -8,6 +8,7 @@ uniform float uAperture;
 uniform float uMaxBlurPixels;
 uniform float uCameraDistance;
 uniform vec2 uPhotoHalfSize;
+uniform vec2 uPhotoOffset;
 
 // Sample photo texture; outside [0.0, 1.0] is infinite black border of the desktop
 vec4 samplePhoto(vec2 uv, float lod) {
@@ -27,9 +28,12 @@ void main() {
     vec2 tablePos = vWorldPos.xy * t;
 
     // 2. Map table intersection coordinate to normalized photo UV:
+    // uPhotoOffset: (X, Y) center position of photo on the desktop
+    // uPhotoHalfSize: dimensions of photo on the desktop (scaled by user zoom)
+    vec2 relPos = tablePos - uPhotoOffset;
     vec2 photoUV;
-    photoUV.x = (tablePos.x + uPhotoHalfSize.x) / (2.0 * uPhotoHalfSize.x);
-    photoUV.y = 1.0 - (tablePos.y + uPhotoHalfSize.y) / (2.0 * uPhotoHalfSize.y);
+    photoUV.x = (relPos.x + uPhotoHalfSize.x) / (2.0 * uPhotoHalfSize.x);
+    photoUV.y = 1.0 - (relPos.y + uPhotoHalfSize.y) / (2.0 * uPhotoHalfSize.y);
 
     // 3. Physical gap height between frosted glass (phone screen) and desktop photo:
     float vGap = abs(vWorldPos.z);

@@ -30,6 +30,7 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
     private int uTexelSizeLoc;
     private int uApertureLoc;
     private int uMaxBlurPixelsLoc;
+    private int uPhotoOffsetLoc;
 
     private int aPositionLoc;
 
@@ -65,9 +66,19 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
     private volatile float cameraDistanceFactor = 1.0f;
     private static final float MAX_BLUR_PIXELS = 160.0f;
 
+    // Photo Pan & Zoom on the desktop (Z = 0)
+    // Scale > 1.0 makes photo larger than screen viewport so tilting explores beyond edges
+    private volatile float photoScale = 1.0f;
+    private volatile float photoOffsetX = 0.0f;
+    private volatile float photoOffsetY = 0.0f;
+
     // Half dimensions of the phone screen and photo
     private float halfH = 1.0f;
     private float halfW = 1.0f;
+
+    // Base half dimensions of the photo (proportionally scaled to fill the screen: AspectFill)
+    private float photoBaseHalfW = 1.0f;
+    private float photoBaseHalfH = 1.0f;
 
     public DuoGLRenderer(Context context) {
         this.context = context;
@@ -163,6 +174,74 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
         return fovY;
     }
 
+    public float getHalfW() {
+        return halfW;
+    }
+
+    public float getHalfH() {
+        return halfH;
+    }
+
+    public void setPhotoScale(float scale) {
+        this.photoScale = Math.max(0.3f, Math.min(scale, 5.0f));
+    }
+
+    public float getPhotoScale() {
+        return photoScale;
+    }
+
+    public void scalePhoto(float factor) {
+        setPhotoScale(this.photoScale * factor);
+    }
+
+    public void setPhotoOffset(float offsetX, float offsetY) {
+        this.photoOffsetX = offsetX;
+        this.photoOffsetY = offsetY;
+    }
+
+    public void translatePhoto(float deltaX, float deltaY) {
+        this.photoOffsetX += deltaX;
+        this.photoOffsetY += deltaY;
+    }
+
+    public void resetPhotoTransform() {
+        this.photoScale = 1.0f;
+        this.photoOffsetX = 0.0f;
+        this.photoOffsetY = 0.0f;
+    }
+
+    public float getPhotoBaseHalfW() {
+        return photoBaseHalfW;
+    }
+
+    public float getPhotoBaseHalfH() {
+        return photoBaseHalfH;
+    }
+
+    /**
+     * Compute base photo dimensions to proportionally scale to fill the full screen (AspectFill / CenterCrop).
+     * Preserves original aspect ratio with zero distortion and zero black borders when un-tilted.
+     */
+    private void updatePhotoBaseSize() {
+        if (imageWidth <= 0 || imageHeight <= 0 || viewWidth <= 0 || viewHeight <= 0) {
+            photoBaseHalfW = halfW;
+            photoBaseHalfH = halfH;
+            return;
+        }
+        float imageAspect = (float) imageWidth / (float) imageHeight;
+        float screenAspect = (float) viewWidth / (float) viewHeight;
+
+        if (imageAspect > screenAspect) {
+            // Image is wider than screen: fit screen height, width extends beyond screen
+            photoBaseHalfH = halfH;
+            photoBaseHalfW = halfH * imageAspect;
+        } else {
+            // Image is taller than screen: fit screen width, height extends beyond screen
+            photoBaseHalfW = halfW;
+            photoBaseHalfH = halfW / imageAspect;
+        }
+    }
+
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -181,6 +260,7 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
             uTexelSizeLoc = GLES20.glGetUniformLocation(programId, "uTexelSize");
             uApertureLoc = GLES20.glGetUniformLocation(programId, "uAperture");
             uMaxBlurPixelsLoc = GLES20.glGetUniformLocation(programId, "uMaxBlurPixels");
+            uPhotoOffsetLoc = GLES20.glGetUniformLocation(programId, "uPhotoOffset");
 
             aPositionLoc = GLES20.glGetAttribLocation(programId, "aPosition");
         }
@@ -194,6 +274,7 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
 
         float screenAspect = (float) width / (float) height;
         initMesh(screenAspect);
+        updatePhotoBaseSize();
     }
 
     @Override
@@ -207,6 +288,8 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
                 textureId = ShaderUtils.loadTexture(pendingBitmap);
                 imageWidth = pendingBitmap.getWidth();
                 imageHeight = pendingBitmap.getHeight();
+                updatePhotoBaseSize();
+                resetPhotoTransform();
                 hasNewBitmap = false;
             }
         }
@@ -242,7 +325,8 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
 
         GLES20.glUniformMatrix4fv(uModelMatrixLoc, 1, false, modelMatrix, 0);
         GLES20.glUniform2f(uScreenHalfSizeLoc, halfW, halfH);
-        GLES20.glUniform2f(uPhotoHalfSizeLoc, halfW, halfH);
+        GLES20.glUniform2f(uPhotoHalfSizeLoc, photoBaseHalfW * photoScale, photoBaseHalfH * photoScale);
+        GLES20.glUniform2f(uPhotoOffsetLoc, photoOffsetX, photoOffsetY);
         GLES20.glUniform1f(uCameraDistanceLoc, baseDistance);
 
         // Texture and Texel Size

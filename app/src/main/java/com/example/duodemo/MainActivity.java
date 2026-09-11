@@ -157,7 +157,10 @@ public class MainActivity extends AppCompatActivity {
             glSurfaceView.setCameraDistanceFactor(1.0f);
             tvDistanceValue.setText("1.0x");
 
-            Toast.makeText(this, "已校准水平：X角度与Y角度已归零，四角完全对齐视口", Toast.LENGTH_SHORT).show();
+            // Reset photo pan and scale back to 1:1 viewport alignment
+            glSurfaceView.resetPhotoTransform();
+
+            Toast.makeText(this, "已校准水平：X/Y角度归零，图片位置与尺寸恢复默认对齐", Toast.LENGTH_SHORT).show();
         });
 
         // Blur slider (Aperture)
