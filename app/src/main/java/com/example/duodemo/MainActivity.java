@@ -32,10 +32,8 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
 
     private DuoGLSurfaceView glSurfaceView;
-    private View topStatusBadge;
     private View bottomHudPanel;
 
-    private TextView tvAngleInfo;
     private TextView tvBlurValue;
     private TextView tvFovValue;
     private TextView tvDistanceValue;
@@ -106,10 +104,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void initViews() {
         glSurfaceView = findViewById(R.id.glSurfaceView);
-        topStatusBadge = findViewById(R.id.topStatusBadge);
         bottomHudPanel = findViewById(R.id.bottomHudPanel);
 
-        tvAngleInfo = findViewById(R.id.tvAngleInfo);
         tvBlurValue = findViewById(R.id.tvBlurValue);
         tvFovValue = findViewById(R.id.tvFovValue);
         tvDistanceValue = findViewById(R.id.tvDistanceValue);
@@ -123,22 +119,11 @@ public class MainActivity extends AppCompatActivity {
         seekDistance = findViewById(R.id.seekDistance);
     }
 
-    private long lastAngleTextUpdate = 0L;
-
     private void setupSensors() {
         tiltTracker = new DeviceTiltTracker(this);
         tiltTracker.setOnTiltListener((pitchDeg, rollDeg, rawPitch, rawRoll) -> {
-            // 1. Immediately update GL thread with ZERO latency (bypassing Android UI thread message queue)
+            // Immediately update GL thread with ZERO latency (bypassing Android UI thread message queue)
             glSurfaceView.setTilt(pitchDeg, rollDeg);
-
-            // 2. Throttle text display update to ~15fps so it doesn't bog down the UI thread
-            long now = android.os.SystemClock.uptimeMillis();
-            if (isUiVisible && now - lastAngleTextUpdate > 66) {
-                lastAngleTextUpdate = now;
-                runOnUiThread(() -> {
-                    tvAngleInfo.setText(String.format(Locale.US, "Pitch (X): %.1f° | Roll (Y): %.1f°", pitchDeg, rollDeg));
-                });
-            }
         });
     }
 
@@ -243,13 +228,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void hideAllUi() {
         isUiVisible = false;
-        topStatusBadge.setVisibility(View.GONE);
         bottomHudPanel.setVisibility(View.GONE);
     }
 
     private void showAllUi() {
         isUiVisible = true;
-        topStatusBadge.setVisibility(View.VISIBLE);
         bottomHudPanel.setVisibility(View.VISIBLE);
     }
 

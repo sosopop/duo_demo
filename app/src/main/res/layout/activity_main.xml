@@ -17,34 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Top Status / Angle HUD Badge -->
-    <LinearLayout
-        android:id="@+id/topStatusBadge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:background="@drawable/hud_background"
-        android:elevation="15dp"
-        android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/tvAngleInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:shadowColor="#80000000"
-            android:shadowRadius="4"
-            android:text="Pitch (X): 0.0° | Roll (Y): 0.0°"
-            android:textColor="@color/text_primary"
-            android:textSize="13sp" />
-    </LinearLayout>
 
     <!-- Bottom Floating Glassmorphism Controller HUD -->
     <LinearLayout

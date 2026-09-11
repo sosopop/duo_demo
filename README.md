@@ -1,153 +1,108 @@
-# DuoDepth: 3D Spatial Tilt & Bokeh Simulator
+# DuoDepth 📱✨
 
 <div align="center">
-  <img src="duodepth_icon.svg" width="128" height="128" alt="DuoDepth Logo" />
-  <h3>Real-Time 3D Spatial Frosted Glass Tilt &amp; Optical Depth-of-Field Simulator for Android</h3>
+  <img src="duodepth_icon.svg" width="120" height="120" alt="DuoDepth Logo" />
+  <h3>What if your phone screen wasn't a display, but a magic window?</h3>
+  <p><b>A real-time 3D optical illusion app for Android that turns your screen into a piece of frosted glass floating above your desk.</b></p>
+  
   <p>
-    <img src="https://img.shields.io/badge/Platform-Android_8.0+_(API_26+)-3DDC84.svg?style=flat&logo=android" alt="Android" />
-    <img src="https://img.shields.io/badge/Graphics-OpenGL_ES_3.0_/_2.0-5586A4.svg?style=flat&logo=opengl" alt="OpenGL ES" />
-    <img src="https://img.shields.io/badge/Language-Java_%26_GLSL-orange.svg?style=flat" alt="Language" />
-    <img src="https://img.shields.io/badge/Build-Gradle_8.13-02303A.svg?style=flat&logo=gradle" alt="Gradle" />
-    <img src="https://img.shields.io/badge/Release_Signing-Automated-blue.svg?style=flat" alt="Release Signing" />
+    <img src="https://img.shields.io/badge/Platform-Android_8.0+-3DDC84.svg?style=flat&logo=android" alt="Android" />
+    <img src="https://img.shields.io/badge/Graphics-OpenGL_ES-5586A4.svg?style=flat&logo=opengl" alt="OpenGL ES" />
+    <img src="https://img.shields.io/badge/Latency-Instant_%3C10ms-FF9500.svg?style=flat" alt="Latency" />
+    <img src="https://img.shields.io/badge/Build-Signed_Release_Ready-0A84FF.svg?style=flat" alt="Release" />
   </p>
 </div>
 
 ---
 
-## 📖 Overview
+## 🔮 The Illusion
 
-**DuoDepth** transforms your Android phone into an interactive **3D frosted glass viewport** anchored above a virtual desktop. As you tilt, lift, and rotate your phone in the real physical world, the displayed image stays locked to the tabletop beneath, undergoing authentic optical perspective shrinkage and physical depth-of-field bokeh diffusion.
+Imagine placing your favorite photo flat on your desk. Now take a sheet of semi-transparent frosted glass and hold it right above the picture. 
 
-Inspired by futuristic dual-screen and spatial computing concepts (such as the optical depth perception of the iPhone Duo concept), DuoDepth implements an end-to-end real-time optical ray-tracing pipeline in OpenGL ES with zero-latency gyroscope tracking.
+- **Lay your phone flat on the desk:** The image is 100% razor-sharp, filling your screen from corner to corner.
+- **Tilt the top edge up:** The bottom edge stays "glued" to the desk, while the top edge floats up into the air. As it lifts higher, the background naturally shrinks in perspective and melts into dreamy, silky camera bokeh.
+- **Spin it, tilt it sideways:** The phone acts like a moving magnifying glass into a world printed directly onto your table.
 
----
-
-## ✨ Key Features
-
-### 🪟 1. The Phone Screen as a 3D Frosted Glass Viewport
-- **Edge-to-Edge Fullscreen**: The phone screen is physically treated as the tilted frosted glass aperture itself—eliminating awkward black canvas borders.
-- **Tabletop Ray-Tracing**: A virtual pinhole camera is positioned at $(0, 0, D)$ directly looking down at the tabletop ($Z = 0$). Rays projected through each screen pixel $(X_w, Y_w, Z_w)$ intersect the desktop photo at:
-  $$\vec{P}_{\text{table}} = \vec{P}_{\text{world}} \cdot \frac{D}{D - Z_w}$$
-- **Natural Optical Cancellation**: Perspective shrinkage rendered on-screen precisely offsets the physical perspective foreshortening perceived by human eyes, creating the stunning illusion that the image is physically printed on the table beneath your phone.
-
-### ⚡ 2. Zero-Latency True 3D Relative Calibration
-- **Relative Attitude Matrix**: Rather than simplistic 1D Euler angle subtraction, calibration computes the exact 3D coordinate transformation:
-  $$R_{\text{rel}} = R_{\text{calib}}^T \cdot R_{\text{current}}$$
-- **Coordinate System Follows Phone**: Regardless of whether you hold your phone flat, at a $45^\circ$ incline, or lying down, pressing **Calibrate Level** anchors the 4-edge rotation axes directly to the phone's physical chassis:
-  - Tilting up/down rotates strictly around the phone's top/bottom edges.
-  - Tilting left/right rotates strictly around the phone's left/right edges.
-- **Dynamic Instant Filter**: High-frequency sensor fusion ($200\,\text{Hz}$) with adaptive low-pass weighting ($0.92$ during movement, $0.35$ when static) achieves sub-$10\,\text{ms}$ motion-to-photon latency with zero jitter.
-
-### 🌌 3. Substantive 16-Tap Vogel Spiral Bokeh
-- **Genuine Optical Diffusion**: Replaced bloom/glow filters with uniform-area 16-tap Vogel spiral disc convolution. High-contrast UI elements, text, and edges genuinely dissolve into rich, velvety frosted glass.
-- **Hardware Trilinear Mipmap Filtering**: Dynamic LOD bias (up to $3.0$) smooths high-frequency texels before disc convolution, completely eliminating pixelation and mosaic blocks.
-- **Non-Linear Quadratic Ease-In ($x^2$)**:
-  $$\text{normGap} = \text{clamp}(vGap \cdot 0.95, 0.0, 1.0), \quad \text{blurCoC} = \text{clamp}(\text{normGap}^2 \cdot \text{uAperture} \cdot 1.5, 0.0, 1.0)$$
-  Blur remains subtle and sharp near the anchored hinge, accelerating rapidly as the lifted edge separates from the tabletop.
-
-### 📐 4. Fullscreen Quad Architecture (Zero Hairline Seams)
-- Single 4-vertex, 2-triangle fullscreen quad eliminates all $14,400$ internal grid mesh triangles.
-- Full 32-bit `highp float` shader precision eliminates coordinate quantization banding and IGN moiré artifacts.
-- 1-texel soft boundary anti-aliasing prevents razor-sharp boundary lines.
-
-### 🖐️ 5. Photo Pan, Zoom, and Lock Controls
-- **Proportional AspectFill CenterCrop**: Loaded images (4:3, 16:9, panoramic) automatically scale to fill the screen without distortion or letterboxing.
-- **Single-Finger Drag**: Pan the photo on the virtual desktop to explore regions beyond the physical viewport.
-- **Two-Finger Pinch**: Scale the photo ($0.3\times \sim 5.0\times$).
-- **Gesture Lock Switch**: Dedicated Material Switch locks photo position to prevent accidental displacement while tilting.
-- **One-Tap Reset Button**: Instantly restores photo transform to default 1:1 AspectFill centered alignment.
-
-### 🎛️ 6. Real-Time Optical Controls
-- **Depth Blur Aperture Slider**: $0\% \sim 100\%$ intensity.
-- **Camera FOV Slider**: $5^\circ$ (orthographic-like telephoto) to $90^\circ$ (dramatic wide angle), default $30^\circ$ matching the natural human eye field of view.
-- **Viewpoint Distance Slider**: $0.1\times \sim 2.0\times$ distance factor.
-- **Silent UI Toggle**: Tap anywhere on screen to toggle the floating glassmorphism HUD without popup interruptions.
+It’s inspired by the futuristic dual-screen and spatial depth concepts (like the *iPhone Duo* concept)—reimagined as an interactive physics playground you can hold in your hand!
 
 ---
 
-## 🏗️ Project Architecture
+## 🎮 How to Play
 
-```
-duo_demo/
-├── app/
-│   ├── src/main/
-│   │   ├── java/com/example/duodemo/
-│   │   │   ├── MainActivity.java           # Fullscreen HUD, gesture orchestration, permission & pickers
-│   │   │   ├── gl/
-│   │   │   │   ├── DuoGLSurfaceView.java   # Touch gesture detection (pan/zoom/tap) & GL thread bridge
-│   │   │   │   ├── DuoGLRenderer.java      # Matrix kinematics, fixed pinhole camera, fullscreen quad
-│   │   │   │   └── ShaderUtils.java        # Shader compilation & trilinear mipmap texture loader
-│   │   │   ├── sensor/
-│   │   │   │   └── DeviceTiltTracker.java  # Rotation vector sensor listener & 3D relative matrix math
-│   │   │   └── util/
-│   │   │       └── BitmapUtils.java        # Bitmap decode, EXIF rotation fix, default desktop wallpaper
-│   │   ├── assets/shaders/
-│   │   │   ├── dof_vertex.glsl             # Highp 3D world coordinate transformation
-│   │   │   └── dof_fragment.glsl           # 16-tap Vogel spiral bokeh & ray-tabletop homography
-│   │   └── res/
-│   │       ├── layout/activity_main.xml    # Edge-to-edge layout & floating glassmorphism HUD
-│   │       ├── values/strings.xml          # Clean English localization
-│   │       └── drawable/                   # Vector HUD backgrounds & DuoDepth adaptive app icon
-│   ├── duodepth-release.jks               # Production release signing keystore
-│   └── build.gradle                        # Signing configs & build definitions
-├── duodepth_icon.svg                       # Full-fidelity vector app icon (W3C SVG)
-├── keystore.properties                     # Release signing credentials
-└── README.md
-```
+| Gesture / Action | What Happens |
+| :--- | :--- |
+| **Tilt your phone** | Watch the photo stay pinned to your desk while the lifted edges blur into the distance! |
+| **Tap anywhere** | Instantly hides or shows the glassmorphism control panel (no annoying popups). |
+| **Choose Image** | Drop in your favorite photo, wallpaper, anime art, or landscape from your gallery. |
+| **Calibrate** | Lay back on the sofa or hold your phone at an angle, hit **Calibrate**, and that exact pose becomes your new "level ground"! |
+| **Toggle Gestures (Switch)** | Flip the switch to pan around the image with one finger, or pinch-to-zoom up to 5×! Flip it off to lock your composition in place so you can tilt without accidental drags. |
+| **Reset Photo** | One tap brings your picture right back to the center, perfectly cropped to fit your screen. |
 
 ---
 
-## 🚀 Building & Running
+## 🎛️ Fun Knobs to Play With
 
-### Prerequisites
-- **JDK**: Java 17 or Java 21
-- **Android SDK**: Compile SDK 34, Min SDK 26 (Android 8.0+)
-- **Build Tool**: Gradle 8.13 (via included Gradle Wrapper)
+- 🔍 **Camera FOV Slider (5° – 90°)**:
+  - Slide down to **5°**: Turns into an extreme telephoto lens with dramatic isometric, orthographic vibes.
+  - Slide up to **90°**: Transforms into an action-cam wide-angle view where depth curves aggressively!
+- 🔭 **Viewpoint Distance (0.1× – 2.0×)**:
+  - Bring the virtual observer super close to the table or pull back for a bird’s-eye perspective.
+- 🌫️ **Depth Blur Aperture (0% – 100%)**:
+  - Dial it up for rich, creamy, buttery f/0.95 lens bokeh, or tone it down for a subtle mist.
 
-### 1. Build Debug APK
+---
+
+## ⚡ Secret Sauce (Under the Hood)
+
+No dry math textbook formulas here—just the fun engineering tricks that make it feel alive:
+
+1. **The "Glued to Desk" Raycaster**:
+   Instead of drawing a 3D box on your screen, a virtual camera in the sky casts rays through every single pixel on your phone down to the tabletop. The screen shrinkage exactly cancels out what your eyes see, pulling off the optical magic trick.
+2. **Zero-Lag Gyroscope Engine**:
+   Updates at 200 Hz with adaptive filtering. When you move fast, it kicks into high-gear instant response (under 10 milliseconds of delay!). When your hand rests, it smooths out tiny hand tremors.
+3. **Creamy Vogel Bokeh (No Fake Bloom)**:
+   A lot of blur shaders just add a cheap glowing fog. DuoDepth uses a 16-point golden-spiral disc convolution with hardware mipmap filtering. High-contrast letters and icons don't just glow—they genuinely dissolve into real frosted glass diffusion.
+4. **Zero-Seam Screen**:
+   We ditched thousands of clunky 3D grid triangles for a pristine full-screen quad. Zero cracks, zero lines, zero tearing.
+5. **Background Sleep Guardian**:
+   Switch apps, take a call, or lock your screen—when you come back, your photo and exact zoom position are instantly right where you left them.
+
+---
+
+## 🚀 Get the APK
+
+### Build Debug APK
 ```bash
-# Windows (PowerShell / Command Prompt)
+# Windows
 .\gradlew.bat assembleDebug
 
 # macOS / Linux
 ./gradlew assembleDebug
 ```
-Output APK: `app/build/outputs/apk/debug/app-debug.apk`
+👉 Generated at: `app/build/outputs/apk/debug/app-debug.apk`
 
-### 2. Build Signed Release APK
-The project includes automated release signing configured out of the box with `keystore.properties` and `duodepth-release.jks`:
-
+### Build Signed Release APK
+Out of the box, automated signing is already set up with `keystore.properties`:
 ```bash
-# Windows (PowerShell / Command Prompt)
+# Windows
 .\gradlew.bat assembleRelease
 
 # macOS / Linux
 ./gradlew assembleRelease
 ```
-Output APK: `app/build/outputs/apk/release/app-release.apk`
-
-#### Custom Keystore Configuration
-To sign with your own private production keystore, modify `keystore.properties` in the project root:
-```properties
-storeFile=path/to/your/release.jks
-storePassword=your_store_password
-keyAlias=your_key_alias
-keyPassword=your_key_password
-```
+👉 Generated at: `app/build/outputs/apk/release/app-release.apk`
 
 ---
 
-## 🎨 Icon Design Concept
+## 🎨 The Icon
 
-The DuoDepth application icon represents:
-- **3D Floating Glass Pane**: A perspective isometric viewport floating above a dark cosmic backdrop.
-- **Optical Aperture & Bokeh Rings**: Glowing concentric cyan (`#64D2FF`) and magenta (`#FF375F`) bokeh orbs with focal crosshairs.
-- **Anchored Hinge**: An electric green base indicator representing the grounded edge of rotation.
-
-The icon is provided as both an **Adaptive Vector Icon** (`ic_launcher_background.xml` + `ic_launcher_foreground.xml`) and a standalone **W3C SVG** (`duodepth_icon.svg`).
+The app icon is designed in a minimalist spatial computing aesthetic:
+- A tilted perspective frosted glass pane hovering in deep space.
+- A glowing optical depth aperture ring at its heart.
+- Check out the raw vector file in the root directory: [`duodepth_icon.svg`](duodepth_icon.svg).
 
 ---
 
-## 📄 License
+## 📜 License
 
-This project is licensed under the [MIT License](LICENSE).
+Crafted with ❤️. Licensed under the [MIT License](LICENSE).

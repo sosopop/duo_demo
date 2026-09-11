@@ -123,51 +123,32 @@ public class BitmapUtils {
 
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
         String timeStr = timeFormat.format(new Date());
-        canvas.drawText(timeStr, width * 0.5f, height * 0.12f, textPaint);
+        canvas.drawText(timeStr, width * 0.5f, height * 0.11f, textPaint);
 
         textPaint.setTextSize(height * 0.016f);
         textPaint.setFakeBoldText(false);
-        canvas.drawText("DuoDepth · 3D Spatial Desktop", width * 0.5f, height * 0.155f, textPaint);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMMM d", Locale.US);
+        String dateStr = dateFormat.format(new Date());
+        canvas.drawText(dateStr, width * 0.5f, height * 0.145f, textPaint);
 
-        // 3. Featured Medium Widget Card (Weather / Music style)
-        Paint cardPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        cardPaint.setColor(Color.parseColor("#40FFFFFF"));
-        RectF widgetRect = new RectF(width * 0.08f, height * 0.18f, width * 0.92f, height * 0.33f);
-        canvas.drawRoundRect(widgetRect, 48, 48, cardPaint);
-
-        Paint cardBorder = new Paint(Paint.ANTI_ALIAS_FLAG);
-        cardBorder.setStyle(Paint.Style.STROKE);
-        cardBorder.setStrokeWidth(3);
-        cardBorder.setColor(Color.parseColor("#60FFFFFF"));
-        canvas.drawRoundRect(widgetRect, 48, 48, cardBorder);
-
-        textPaint.setTextAlign(Paint.Align.LEFT);
-        textPaint.setTextSize(height * 0.022f);
-        textPaint.setFakeBoldText(true);
-        canvas.drawText("Spatial Depth Simulator", width * 0.14f, height * 0.23f, textPaint);
-
-        textPaint.setTextSize(height * 0.015f);
-        textPaint.setFakeBoldText(false);
-        textPaint.setColor(Color.parseColor("#E0E0E0"));
-        canvas.drawText("Crystal clear when resting flat on table", width * 0.14f, height * 0.27f, textPaint);
-        canvas.drawText("Anchored hinge edge with progressive bokeh tilt", width * 0.14f, height * 0.30f, textPaint);
-
-        // 4. App Icons Grid (4 rows x 4 cols)
+        // 3. App Icons Grid (5 rows x 4 cols)
         String[][] apps = {
                 {"Photos", "Camera", "Safari", "Maps"},
                 {"Settings", "Notes", "Weather", "Music"},
                 {"Clock", "Health", "Stocks", "Podcasts"},
-                {"Files", "App Store", "Mail", "Fitness"}
+                {"Files", "App Store", "Mail", "Fitness"},
+                {"Calculator", "Compass", "TV", "Books"}
         };
         int[][] iconColors = {
                 {Color.parseColor("#FF9500"), Color.parseColor("#8E8E93"), Color.parseColor("#007AFF"), Color.parseColor("#34C759")},
                 {Color.parseColor("#5856D6"), Color.parseColor("#FFCC00"), Color.parseColor("#32ADE6"), Color.parseColor("#FA2D48")},
                 {Color.parseColor("#1C1C1E"), Color.parseColor("#FF2D55"), Color.parseColor("#30D158"), Color.parseColor("#AF52DE")},
-                {Color.parseColor("#0A84FF"), Color.parseColor("#007AFF"), Color.parseColor("#5E5CE6"), Color.parseColor("#FF453A")}
+                {Color.parseColor("#0A84FF"), Color.parseColor("#007AFF"), Color.parseColor("#5E5CE6"), Color.parseColor("#FF453A")},
+                {Color.parseColor("#FF9500"), Color.parseColor("#1C1C1E"), Color.parseColor("#1C1C1E"), Color.parseColor("#FF9500")}
         };
 
-        float startY = height * 0.36f;
-        float rowSpacing = height * 0.095f;
+        float startY = height * 0.20f;
+        float rowSpacing = height * 0.115f;
         float colSpacing = width / 4.0f;
         float iconRadius = width * 0.075f;
 
@@ -178,7 +159,7 @@ public class BitmapUtils {
         iconLabelPaint.setTextSize(height * 0.014f);
         iconLabelPaint.setShadowLayer(4, 0, 2, Color.parseColor("#80000000"));
 
-        for (int r = 0; r < 4; r++) {
+        for (int r = 0; r < apps.length; r++) {
             for (int c = 0; c < 4; c++) {
                 float cx = colSpacing * c + colSpacing * 0.5f;
                 float cy = startY + r * rowSpacing;
@@ -198,9 +179,9 @@ public class BitmapUtils {
             }
         }
 
-        // 5. Bottom Dock Card (Pinned 4 apps)
-        float dockY = height * 0.85f;
-        float dockHeight = height * 0.105f;
+        // 4. Bottom Dock Card (Pinned 4 apps)
+        float dockY = height * 0.83f;
+        float dockHeight = height * 0.11f;
         RectF dockRect = new RectF(width * 0.06f, dockY, width * 0.94f, dockY + dockHeight);
 
         Paint dockPaint = new Paint(Paint.ANTI_ALIAS_FLAG);

@@ -9,5 +9,4 @@
     <string name="camera_fov">Camera FOV:</string>
     <string name="view_distance">Viewpoint Distance:</string>
     <string name="bottom_hint">Aligned Viewport · Enable Gestures to Pan/Zoom · Tap to Toggle HUD</string>
-    <string name="angle_format" formatted="false">Pitch (X): %.1f° | Roll (Y): %.1f°</string>
 </resources>
