@@ -34,9 +34,12 @@ void main() {
     // 3. Physical gap height between frosted glass (phone screen) and desktop photo:
     float vGap = abs(vWorldPos.z);
 
-    // Frosted glass blur CoC (0.0 to 1.0)
-    // 1.5 multiplier provides smooth, substantial physical blur across tilt angles
-    float blurCoC = clamp(vGap * uAperture * 1.5, 0.0, 1.0);
+    // Non-linear Ease-In blur progression (slow start, accelerating towards the far edge):
+    // Near the hinge edge: blur grows very slowly, keeping the near region sharp and clear.
+    // Far lifted edge: blur accelerates quadratically (x^2) into deep, rich frosted glass.
+    float normGap = clamp(vGap * 0.95, 0.0, 1.0);
+    float easeIn = normGap * normGap; // Quadratic ease-in curve
+    float blurCoC = clamp(easeIn * uAperture * 1.5, 0.0, 1.0);
 
     // If touching the table (gap is 0), render completely sharp texture without blur
     if (blurCoC <= 0.003) {
