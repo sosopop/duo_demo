@@ -128,60 +128,59 @@ public class DuoGLSurfaceView extends GLSurfaceView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // Let gesture detector process taps
-        boolean gestureHandled = gestureDetector.onTouchEvent(event);
+        if (!touchSimulationMode) {
+            return gestureDetector.onTouchEvent(event);
+        }
 
-        if (touchSimulationMode) {
-            switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
-                    startTouchX = event.getX();
-                    startTouchY = event.getY();
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                startTouchX = event.getX();
+                startTouchY = event.getY();
+                lastTouchX = event.getX();
+                lastTouchY = event.getY();
+                isDragging = false;
+                return true;
+
+            case MotionEvent.ACTION_MOVE:
+                float totalDx = event.getX() - startTouchX;
+                float totalDy = event.getY() - startTouchY;
+                if (Math.abs(totalDx) > 8 || Math.abs(totalDy) > 8) {
+                    isDragging = true;
+                }
+
+                if (isDragging) {
+                    float dx = event.getX() - lastTouchX;
+                    float dy = event.getY() - lastTouchY;
                     lastTouchX = event.getX();
                     lastTouchY = event.getY();
-                    isDragging = false;
-                    return true;
 
-                case MotionEvent.ACTION_MOVE:
-                    float totalDx = event.getX() - startTouchX;
-                    float totalDy = event.getY() - startTouchY;
-                    if (Math.abs(totalDx) > 8 || Math.abs(totalDy) > 8) {
-                        isDragging = true;
+                    // Dragging vertically:
+                    // dy < 0 (drag up): pitch becomes more negative (bottom edge hinge, top opens)
+                    // dy > 0 (drag down): pitch becomes positive (top edge hinge, bottom opens)
+                    manualPitch += dy * 0.18f;
+                    manualPitch = Math.max(-70.0f, Math.min(manualPitch, 70.0f));
+
+                    // Dragging horizontally:
+                    // dx < 0 (drag left): roll becomes negative (left edge hinge, right opens)
+                    // dx > 0 (drag right): roll becomes positive (right edge hinge, left opens)
+                    manualRoll += dx * 0.15f;
+                    manualRoll = Math.max(-50.0f, Math.min(manualRoll, 50.0f));
+
+                    renderer.setTilt(manualPitch, manualRoll);
+                    if (manualTiltListener != null) {
+                        manualTiltListener.onManualTilt(manualPitch, manualRoll);
                     }
+                }
+                return true;
 
-                    if (isDragging) {
-                        float dx = event.getX() - lastTouchX;
-                        float dy = event.getY() - lastTouchY;
-                        lastTouchX = event.getX();
-                        lastTouchY = event.getY();
-
-                        // Dragging vertically:
-                        // dy < 0 (drag up): pitch becomes more negative (bottom edge hinge, top opens)
-                        // dy > 0 (drag down): pitch becomes positive (top edge hinge, bottom opens)
-                        manualPitch += dy * 0.18f;
-                        manualPitch = Math.max(-70.0f, Math.min(manualPitch, 70.0f));
-
-                        // Dragging horizontally:
-                        // dx < 0 (drag left): roll becomes negative (left edge hinge, right opens)
-                        // dx > 0 (drag right): roll becomes positive (right edge hinge, left opens)
-                        manualRoll += dx * 0.15f;
-                        manualRoll = Math.max(-50.0f, Math.min(manualRoll, 50.0f));
-
-                        renderer.setTilt(manualPitch, manualRoll);
-                        if (manualTiltListener != null) {
-                            manualTiltListener.onManualTilt(manualPitch, manualRoll);
-                        }
+            case MotionEvent.ACTION_UP:
+                // If finger was released without significant drag, treat as tap
+                if (!isDragging) {
+                    if (uiToggleListener != null) {
+                        uiToggleListener.onToggleUi();
                     }
-                    return true;
-
-                case MotionEvent.ACTION_UP:
-                    // If finger was released without significant drag, treat as tap
-                    if (!isDragging) {
-                        if (uiToggleListener != null) {
-                            uiToggleListener.onToggleUi();
-                        }
-                    }
-                    return true;
-            }
+                }
+                return true;
         }
 
         return true;
