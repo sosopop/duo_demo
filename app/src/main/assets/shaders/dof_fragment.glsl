@@ -1,4 +1,8 @@
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
 precision mediump float;
+#endif
 
 varying vec3 vWorldPos;
 
@@ -15,7 +19,11 @@ vec4 samplePhoto(vec2 uv, float lod) {
     if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
         return vec4(0.0, 0.0, 0.0, 1.0);
     }
-    return texture2D(uTexture, uv, lod);
+    // 1-texel soft boundary anti-aliasing to eliminate hard border seam lines
+    vec2 edgeDist = min(uv, 1.0 - uv) / uTexelSize;
+    float edgeAlpha = clamp(min(edgeDist.x, edgeDist.y), 0.0, 1.0);
+    vec4 col = texture2D(uTexture, uv, lod);
+    return vec4(col.rgb * edgeAlpha, 1.0);
 }
 
 void main() {
@@ -46,7 +54,7 @@ void main() {
     float blurCoC = clamp(easeIn * uAperture * 1.5, 0.0, 1.0);
 
     // If touching the table (gap is 0), render completely sharp texture without blur
-    if (blurCoC <= 0.003) {
+    if (blurCoC <= 0.0001) {
         gl_FragColor = samplePhoto(photoUV, 0.0);
         return;
     }

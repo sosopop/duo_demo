@@ -1,3 +1,5 @@
+precision highp float;
+
 attribute vec2 aPosition;
 
 uniform vec2 uScreenHalfSize;

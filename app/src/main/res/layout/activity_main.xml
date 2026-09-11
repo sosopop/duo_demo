@@ -83,6 +83,20 @@
                 app:cornerRadius="10dp" />
 
             <Button
+                android:id="@+id/btnResetPhoto"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:backgroundTint="#2E2E34"
+                android:text="还原图片"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:cornerRadius="10dp" />
+
+            <Button
                 android:id="@+id/btnCalibrate"
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="0dp"
@@ -95,6 +109,30 @@
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 app:cornerRadius="10dp" />
+        </LinearLayout>
+
+        <!-- Switch Row: Gesture Pan & Zoom -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="手势位移与缩放 (拖拽/捏合):"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchGesture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                app:useMaterialThemeColors="true" />
         </LinearLayout>
 
         <!-- Slider 1: Blur Aperture Strength -->

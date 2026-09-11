@@ -23,6 +23,7 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import com.example.duodemo.gl.DuoGLSurfaceView;
 import com.example.duodemo.sensor.DeviceTiltTracker;
 import com.example.duodemo.util.BitmapUtils;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -40,7 +41,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvDistanceValue;
 
     private Button btnPickImage;
+    private Button btnResetPhoto;
     private Button btnCalibrate;
+    private SwitchMaterial switchGesture;
     private SeekBar seekBlurIntensity;
     private SeekBar seekFov;
     private SeekBar seekDistance;
@@ -102,7 +105,9 @@ public class MainActivity extends AppCompatActivity {
         tvDistanceValue = findViewById(R.id.tvDistanceValue);
 
         btnPickImage = findViewById(R.id.btnPickImage);
+        btnResetPhoto = findViewById(R.id.btnResetPhoto);
         btnCalibrate = findViewById(R.id.btnCalibrate);
+        switchGesture = findViewById(R.id.switchGesture);
         seekBlurIntensity = findViewById(R.id.seekBlurIntensity);
         seekFov = findViewById(R.id.seekFov);
         seekDistance = findViewById(R.id.seekDistance);
@@ -140,6 +145,23 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 // Fallback for older devices without Google Play services Photo Picker
                 fallbackGetContentLauncher.launch("image/*");
+            }
+        });
+
+        // Reset Photo Transform (restore scale and position to default 1:1 AspectFill center)
+        btnResetPhoto.setOnClickListener(v -> {
+            glSurfaceView.resetPhotoTransform();
+            Toast.makeText(this, "图片已还原为默认铺满居中", Toast.LENGTH_SHORT).show();
+        });
+
+        // Switch: Enable/Disable Photo Pan & Zoom Gesture
+        glSurfaceView.setGestureTransformEnabled(switchGesture.isChecked());
+        switchGesture.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            glSurfaceView.setGestureTransformEnabled(isChecked);
+            if (isChecked) {
+                Toast.makeText(this, "已开启图片手势 (单指拖拽平移 / 双指捏合缩放)", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "已锁定图片手势位移与缩放", Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -34,9 +34,7 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
 
     private int aPositionLoc;
 
-    // Fullscreen Screen-Space Grid Geometry (48x48 quads)
-    private static final int GRID_COLS = 48;
-    private static final int GRID_ROWS = 48;
+    // Fullscreen Viewport Mesh Quad (Physical screen frosted glass quad)
     private FloatBuffer vertexBuffer;
     private ShortBuffer indexBuffer;
     private int indexCount = 0;
@@ -86,53 +84,30 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
     }
 
     /**
-     * Build a planar subdivided grid for the physical screen viewport.
+     * Build fullscreen quad for the physical screen viewport.
      * Dimensions: Y in [-halfH, +halfH], X in [-halfW, +halfW].
-     * The phone screen is the frosted glass in the user's hand!
+     * Exactly 4 vertices and 2 triangles: eliminates all 14,400 internal mesh grid triangles
+     * and completely eliminates triangle rasterization seams / hairline cracks!
      */
     public synchronized void initMesh(float aspect) {
         this.viewportAspect = aspect;
         this.halfH = 1.0f;
         this.halfW = halfH * aspect;
 
-        int totalVertices = (GRID_COLS + 1) * (GRID_ROWS + 1);
-        float[] vertices = new float[totalVertices * 2]; // 2D (x, y) coordinates
+        // 4 vertices (X, Y)
+        float[] vertices = new float[]{
+            -halfW, -halfH, // 0: Bottom-Left
+             halfW, -halfH, // 1: Bottom-Right
+            -halfW,  halfH, // 2: Top-Left
+             halfW,  halfH  // 3: Top-Right
+        };
 
-        int vIndex = 0;
-        for (int r = 0; r <= GRID_ROWS; r++) {
-            float vRatio = (float) r / GRID_ROWS; // 0.0 to 1.0
-            float y = -halfH + vRatio * (2.0f * halfH);
-
-            for (int c = 0; c <= GRID_COLS; c++) {
-                float uRatio = (float) c / GRID_COLS; // 0.0 to 1.0
-                float x = -halfW + uRatio * (2.0f * halfW);
-
-                vertices[vIndex++] = x;
-                vertices[vIndex++] = y;
-            }
-        }
-
-        // Indices for TRIANGLES
-        indexCount = GRID_COLS * GRID_ROWS * 6;
-        short[] indices = new short[indexCount];
-        int iIndex = 0;
-
-        for (int r = 0; r < GRID_ROWS; r++) {
-            for (int c = 0; c < GRID_COLS; c++) {
-                short bl = (short) (r * (GRID_COLS + 1) + c);
-                short br = (short) (bl + 1);
-                short tl = (short) ((r + 1) * (GRID_COLS + 1) + c);
-                short tr = (short) (tl + 1);
-
-                indices[iIndex++] = bl;
-                indices[iIndex++] = br;
-                indices[iIndex++] = tl;
-
-                indices[iIndex++] = tl;
-                indices[iIndex++] = br;
-                indices[iIndex++] = tr;
-            }
-        }
+        // 2 triangles (Watertight shared diagonal, zero internal grid seams)
+        short[] indices = new short[]{
+            0, 1, 2,
+            2, 1, 3
+        };
+        indexCount = indices.length;
 
         ByteBuffer vbb = ByteBuffer.allocateDirect(vertices.length * 4);
         vbb.order(ByteOrder.nativeOrder());

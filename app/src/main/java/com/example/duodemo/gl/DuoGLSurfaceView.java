@@ -21,6 +21,7 @@ public class DuoGLSurfaceView extends GLSurfaceView {
     private float startTouchY = 0f;
     private boolean isDraggingPhoto = false;
     private int touchSlop = 16;
+    private boolean isGestureTransformEnabled = false;
 
     public interface OnUiToggleListener {
         void onToggleUi();
@@ -51,6 +52,9 @@ public class DuoGLSurfaceView extends GLSurfaceView {
         scaleGestureDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
+                if (!isGestureTransformEnabled) {
+                    return false;
+                }
                 float factor = detector.getScaleFactor();
                 renderer.scalePhoto(factor);
                 return true;
@@ -75,8 +79,11 @@ public class DuoGLSurfaceView extends GLSurfaceView {
 
             @Override
             public boolean onDoubleTap(MotionEvent e) {
-                renderer.resetPhotoTransform();
-                return true;
+                if (isGestureTransformEnabled) {
+                    renderer.resetPhotoTransform();
+                    return true;
+                }
+                return super.onDoubleTap(e);
             }
         });
     }
@@ -137,10 +144,24 @@ public class DuoGLSurfaceView extends GLSurfaceView {
         return renderer.getPhotoBaseHalfH();
     }
 
+    public void setGestureTransformEnabled(boolean enabled) {
+        this.isGestureTransformEnabled = enabled;
+    }
+
+    public boolean isGestureTransformEnabled() {
+        return isGestureTransformEnabled;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        scaleGestureDetector.onTouchEvent(event);
+        if (isGestureTransformEnabled) {
+            scaleGestureDetector.onTouchEvent(event);
+        }
         gestureDetector.onTouchEvent(event);
+
+        if (!isGestureTransformEnabled) {
+            return true;
+        }
 
         int action = event.getActionMasked();
         switch (action) {
