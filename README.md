@@ -11,6 +11,11 @@
     <img src="https://img.shields.io/badge/Latency-Instant_%3C10ms-FF9500.svg?style=flat" alt="Latency" />
     <img src="https://img.shields.io/badge/Build-Signed_Release_Ready-0A84FF.svg?style=flat" alt="Release" />
   </p>
+  <p>
+    <a href="https://github.com/sosopop/duo_demo/releases/download/v1.0.0/DuoDepth-v1.0.0.apk">
+      <img src="https://img.shields.io/badge/Download_APK-v1.0.0-success?style=for-the-badge&logo=android" alt="Download APK" />
+    </a>
+  </p>
 </div>
 
 ---
@@ -82,9 +87,23 @@ No dry math textbook formulas here—just the fun engineering tricks that make i
 
 ---
 
-## 🚀 Get the APK
+## 🚀 Download & Build
 
-### Build Debug APK
+### 📥 Direct Download (Pre-built Release APK)
+
+You can download the latest production-signed release APK directly from GitHub Releases:
+
+| Package | Version | Size | Download |
+| :--- | :--- | :--- | :--- |
+| **DuoDepth Release APK** | `v1.0.0` | ~4.65 MB | [⬇️ **Download DuoDepth-v1.0.0.apk**](https://github.com/sosopop/duo_demo/releases/download/v1.0.0/DuoDepth-v1.0.0.apk) |
+
+> 💡 Check out all releases and historical packages on the [GitHub Releases Page](https://github.com/sosopop/duo_demo/releases/latest).
+
+---
+
+### 🛠️ Build from Source
+
+#### Build Debug APK
 ```bash
 # Windows
 .\gradlew.bat assembleDebug
@@ -94,7 +113,7 @@ No dry math textbook formulas here—just the fun engineering tricks that make i
 ```
 👉 Generated at: `app/build/outputs/apk/debug/app-debug.apk`
 
-### Build Signed Release APK
+#### Build Signed Release APK
 Out of the box, automated signing is already set up with `keystore.properties`:
 ```bash
 # Windows
