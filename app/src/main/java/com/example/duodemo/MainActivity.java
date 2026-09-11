@@ -35,15 +35,14 @@ public class MainActivity extends AppCompatActivity {
     private View bottomHudPanel;
 
     private TextView tvAngleInfo;
-    private TextView tvModeBadge;
     private TextView tvBlurValue;
+    private TextView tvFovValue;
     private TextView tvDistanceValue;
 
     private Button btnPickImage;
     private Button btnCalibrate;
-    private Button btnToggleMode;
-    private Button btnHideUi;
     private SeekBar seekBlurIntensity;
+    private SeekBar seekFov;
     private SeekBar seekDistance;
 
     private DeviceTiltTracker tiltTracker;
@@ -98,41 +97,39 @@ public class MainActivity extends AppCompatActivity {
         bottomHudPanel = findViewById(R.id.bottomHudPanel);
 
         tvAngleInfo = findViewById(R.id.tvAngleInfo);
-        tvModeBadge = findViewById(R.id.tvModeBadge);
         tvBlurValue = findViewById(R.id.tvBlurValue);
+        tvFovValue = findViewById(R.id.tvFovValue);
         tvDistanceValue = findViewById(R.id.tvDistanceValue);
 
         btnPickImage = findViewById(R.id.btnPickImage);
         btnCalibrate = findViewById(R.id.btnCalibrate);
-        btnToggleMode = findViewById(R.id.btnToggleMode);
-        btnHideUi = findViewById(R.id.btnHideUi);
         seekBlurIntensity = findViewById(R.id.seekBlurIntensity);
+        seekFov = findViewById(R.id.seekFov);
         seekDistance = findViewById(R.id.seekDistance);
     }
+
+    private long lastAngleTextUpdate = 0L;
 
     private void setupSensors() {
         tiltTracker = new DeviceTiltTracker(this);
         tiltTracker.setOnTiltListener((pitchDeg, rollDeg, rawPitch, rawRoll) -> {
-            runOnUiThread(() -> {
-                glSurfaceView.setTilt(pitchDeg, rollDeg);
-                tvAngleInfo.setText(String.format(Locale.getDefault(), "X角度: %.1f° | Y角度: %.1f°", pitchDeg, rollDeg));
-            });
+            // 1. Immediately update GL thread with ZERO latency (bypassing Android UI thread message queue)
+            glSurfaceView.setTilt(pitchDeg, rollDeg);
+
+            // 2. Throttle text display update to ~15fps so it doesn't bog down the UI thread
+            long now = android.os.SystemClock.uptimeMillis();
+            if (isUiVisible && now - lastAngleTextUpdate > 66) {
+                lastAngleTextUpdate = now;
+                runOnUiThread(() -> {
+                    tvAngleInfo.setText(String.format(Locale.getDefault(), "X角度: %.1f° | Y角度: %.1f°", pitchDeg, rollDeg));
+                });
+            }
         });
     }
 
     private void setupListeners() {
         // Tap screen to toggle UI visibility
         glSurfaceView.setOnUiToggleListener(this::toggleUiVisibility);
-
-        // Manual tilt listener from touch gestures
-        glSurfaceView.setOnManualTiltListener((pitchDeg, rollDeg) -> {
-            runOnUiThread(() -> {
-                tvAngleInfo.setText(String.format(Locale.getDefault(), "触控 X角度: %.1f° | Y角度: %.1f°", pitchDeg, rollDeg));
-            });
-        });
-
-        // Hide UI button
-        btnHideUi.setOnClickListener(v -> hideAllUi());
 
         // Pick Image
         btnPickImage.setOnClickListener(v -> {
@@ -149,30 +146,18 @@ public class MainActivity extends AppCompatActivity {
         // Calibrate: Align 4 corners of the photo exactly with the screen viewport
         btnCalibrate.setOnClickListener(v -> {
             tiltTracker.calibrateCurrentAsZero();
-            if (glSurfaceView.isTouchSimulationMode()) {
-                glSurfaceView.setManualTilt(0.0f, 0.0f);
-            }
-            // Reset distance to 1.0x to guarantee pixel-perfect 4-corner alignment
-            seekDistance.setProgress(50);
+
+            // Reset FOV to 30° (5 + 25 = 30)
+            seekFov.setProgress(25);
+            glSurfaceView.setFov(30.0f);
+            tvFovValue.setText("30°");
+
+            // Reset distance to 1.0x (0.1 + 90 * 0.01 = 1.0)
+            seekDistance.setProgress(90);
             glSurfaceView.setCameraDistanceFactor(1.0f);
             tvDistanceValue.setText("1.0x");
 
             Toast.makeText(this, "已校准水平：X角度与Y角度已归零，四角完全对齐视口", Toast.LENGTH_SHORT).show();
-        });
-
-        // Toggle Sensor / Touch Mode
-        btnToggleMode.setOnClickListener(v -> {
-            boolean touchMode = !glSurfaceView.isTouchSimulationMode();
-            glSurfaceView.setTouchSimulationMode(touchMode);
-            if (touchMode) {
-                btnToggleMode.setText("切换传感器");
-                tvModeBadge.setText("触控模拟");
-                Toast.makeText(this, "已切换为触控模拟：上下滑调节 X角度，左右滑调节 Y角度", Toast.LENGTH_SHORT).show();
-            } else {
-                btnToggleMode.setText("切换触控");
-                tvModeBadge.setText("传感器");
-                Toast.makeText(this, "已切换为物理传感器实时追踪", Toast.LENGTH_SHORT).show();
-            }
         });
 
         // Blur slider (Aperture)
@@ -190,11 +175,26 @@ public class MainActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        // Distance slider (Camera distance factor)
+        // Camera FOV slider (5° to 90°, default 30°)
+        seekFov.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                float fov = 5.0f + progress; // 5° to 90°
+                glSurfaceView.setFov(fov);
+                tvFovValue.setText(String.format(Locale.getDefault(), "%.0f°", fov));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        // Distance slider (Camera distance factor: 0.1x to 2.0x)
         seekDistance.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                float factor = 0.6f + (progress / 100.0f) * 0.8f; // 0.6x to 1.4x
+                float factor = 0.1f + progress * 0.01f; // 0.1x to 2.0x
                 glSurfaceView.setCameraDistanceFactor(factor);
                 tvDistanceValue.setText(String.format(Locale.getDefault(), "%.1fx", factor));
             }
@@ -210,7 +210,6 @@ public class MainActivity extends AppCompatActivity {
         isUiVisible = false;
         topStatusBadge.setVisibility(View.GONE);
         bottomHudPanel.setVisibility(View.GONE);
-        Toast.makeText(this, "已隐藏UI，轻触屏幕任意位置可恢复显示", Toast.LENGTH_SHORT).show();
     }
 
     private void showAllUi() {

@@ -1,17 +1,17 @@
-uniform mat4 uMVPMatrix;
+attribute vec2 aPosition;
+
+uniform vec2 uScreenHalfSize;
 uniform mat4 uModelMatrix;
 
-attribute vec4 aPosition;
-attribute vec2 aTexCoord;
-
-varying vec2 vTexCoord;
-varying float vGap;
+varying vec3 vWorldPos;
 
 void main() {
-    gl_Position = uMVPMatrix * aPosition;
-    vec4 worldPos = uModelMatrix * aPosition;
-    // Frosted glass tilts away into Z < 0 (shrinking in perspective)
-    // Physical gap between frosted glass and image plane (Z = 0) is -worldPos.z
-    vGap = max(0.0, -worldPos.z);
-    vTexCoord = aTexCoord;
+    // 1. Render edge-to-edge fullscreen on the physical phone screen:
+    // aPosition.x in [-halfW, halfW] maps directly to NDC [-1.0, 1.0]
+    // aPosition.y in [-halfH, halfH] maps directly to NDC [-1.0, 1.0]
+    gl_Position = vec4(aPosition.x / uScreenHalfSize.x, aPosition.y / uScreenHalfSize.y, 0.0, 1.0);
+
+    // 2. Compute the 3D position of this frosted glass point in world space when tilted
+    vec4 worldPos = uModelMatrix * vec4(aPosition, 0.0, 1.0);
+    vWorldPos = worldPos.xyz;
 }

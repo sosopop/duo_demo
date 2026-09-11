@@ -56,7 +56,7 @@ public class DeviceTiltTracker implements SensorEventListener {
 
     public void start() {
         if (isTracking || sensorManager == null || rotationSensor == null) return;
-        sensorManager.registerListener(this, rotationSensor, SensorManager.SENSOR_DELAY_GAME);
+        sensorManager.registerListener(this, rotationSensor, SensorManager.SENSOR_DELAY_FASTEST);
         isTracking = true;
     }
 
@@ -99,9 +99,16 @@ public class DeviceTiltTracker implements SensorEventListener {
             float relativePitch = rawPitch - pitchOffsetDeg;
             float relativeRoll = rawRoll - rollOffsetDeg;
 
-            // Low-pass filter for smooth 60/120fps motion without sensor noise
-            filteredPitchDeg += LPF_ALPHA * (relativePitch - filteredPitchDeg);
-            filteredRollDeg += LPF_ALPHA * (relativeRoll - filteredRollDeg);
+            // Adaptive instant-response filter:
+            // When moving fast (large delta), alpha scales up to 0.92 for immediate real-time response (< 10ms)
+            // When stationary, alpha drops to 0.35 to completely eliminate sensor micro-jitter
+            float deltaPitch = relativePitch - filteredPitchDeg;
+            float deltaRoll = relativeRoll - filteredRollDeg;
+            float maxDelta = Math.max(Math.abs(deltaPitch), Math.abs(deltaRoll));
+            float dynamicAlpha = Math.min(0.92f, Math.max(0.35f, maxDelta * 0.30f));
+
+            filteredPitchDeg += dynamicAlpha * deltaPitch;
+            filteredRollDeg += dynamicAlpha * deltaRoll;
 
             if (listener != null) {
                 listener.onTilt(filteredPitchDeg, filteredRollDeg, rawPitch, rawRoll);
