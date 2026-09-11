@@ -36,6 +36,7 @@ public class DuoGLSurfaceView extends GLSurfaceView {
 
         // Configure OpenGL ES 2.0 / 3.0 context
         setEGLContextClientVersion(2);
+        setPreserveEGLContextOnPause(true);
         setEGLConfigChooser(8, 8, 8, 8, 16, 0);
 
         renderer = new DuoGLRenderer(context);

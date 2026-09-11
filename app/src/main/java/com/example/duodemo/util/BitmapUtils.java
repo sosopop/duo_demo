@@ -127,7 +127,7 @@ public class BitmapUtils {
 
         textPaint.setTextSize(height * 0.016f);
         textPaint.setFakeBoldText(false);
-        canvas.drawText("iPhone Duo · 3D Spatial Desktop", width * 0.5f, height * 0.155f, textPaint);
+        canvas.drawText("DuoDepth · 3D Spatial Desktop", width * 0.5f, height * 0.155f, textPaint);
 
         // 3. Featured Medium Widget Card (Weather / Music style)
         Paint cardPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -149,15 +149,15 @@ public class BitmapUtils {
         textPaint.setTextSize(height * 0.015f);
         textPaint.setFakeBoldText(false);
         textPaint.setColor(Color.parseColor("#E0E0E0"));
-        canvas.drawText("水平平放时整屏完全清晰", width * 0.14f, height * 0.27f, textPaint);
-        canvas.drawText("向上倾斜时底边对齐锚定，远端景深渐变虚化", width * 0.14f, height * 0.30f, textPaint);
+        canvas.drawText("Crystal clear when resting flat on table", width * 0.14f, height * 0.27f, textPaint);
+        canvas.drawText("Anchored hinge edge with progressive bokeh tilt", width * 0.14f, height * 0.30f, textPaint);
 
         // 4. App Icons Grid (4 rows x 4 cols)
         String[][] apps = {
-                {"照片", "相机", "Safari", "地图"},
-                {"设置", "备忘录", "天气", "音乐"},
-                {"时钟", "健康", "股市", "播客"},
-                {"文件", "App Store", "邮件", "健身"}
+                {"Photos", "Camera", "Safari", "Maps"},
+                {"Settings", "Notes", "Weather", "Music"},
+                {"Clock", "Health", "Stocks", "Podcasts"},
+                {"Files", "App Store", "Mail", "Fitness"}
         };
         int[][] iconColors = {
                 {Color.parseColor("#FF9500"), Color.parseColor("#8E8E93"), Color.parseColor("#007AFF"), Color.parseColor("#34C759")},
@@ -207,7 +207,7 @@ public class BitmapUtils {
         dockPaint.setColor(Color.parseColor("#55FFFFFF"));
         canvas.drawRoundRect(dockRect, 42, 42, dockPaint);
 
-        String[] dockApps = {"电话", "信息", "Safari", "音乐"};
+        String[] dockApps = {"Phone", "Messages", "Safari", "Music"};
         int[] dockColors = {Color.parseColor("#34C759"), Color.parseColor("#30D158"), Color.parseColor("#007AFF"), Color.parseColor("#FA2D48")};
         float dockColSpacing = width * 0.88f / 4.0f;
         float dockIconRadius = width * 0.07f;

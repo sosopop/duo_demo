@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private DeviceTiltTracker tiltTracker;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private boolean isUiVisible = true;
+    private Uri currentCustomImageUri = null;
 
     private final ActivityResultLauncher<PickVisualMediaRequest> pickMediaLauncher =
             registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
@@ -78,6 +79,15 @@ public class MainActivity extends AppCompatActivity {
         initViews();
         setupSensors();
         setupListeners();
+
+        if (savedInstanceState != null) {
+            String uriStr = savedInstanceState.getString("KEY_IMAGE_URI");
+            if (uriStr != null) {
+                currentCustomImageUri = Uri.parse(uriStr);
+                loadCustomImage(currentCustomImageUri);
+                return;
+            }
+        }
         loadInitialShowcaseImage();
     }
 
@@ -126,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
             if (isUiVisible && now - lastAngleTextUpdate > 66) {
                 lastAngleTextUpdate = now;
                 runOnUiThread(() -> {
-                    tvAngleInfo.setText(String.format(Locale.getDefault(), "X角度: %.1f° | Y角度: %.1f°", pitchDeg, rollDeg));
+                    tvAngleInfo.setText(String.format(Locale.US, "Pitch (X): %.1f° | Roll (Y): %.1f°", pitchDeg, rollDeg));
                 });
             }
         });
@@ -151,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
         // Reset Photo Transform (restore scale and position to default 1:1 AspectFill center)
         btnResetPhoto.setOnClickListener(v -> {
             glSurfaceView.resetPhotoTransform();
-            Toast.makeText(this, "图片已还原为默认铺满居中", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Photo reset to default centered alignment", Toast.LENGTH_SHORT).show();
         });
 
         // Switch: Enable/Disable Photo Pan & Zoom Gesture
@@ -159,9 +169,9 @@ public class MainActivity extends AppCompatActivity {
         switchGesture.setOnCheckedChangeListener((buttonView, isChecked) -> {
             glSurfaceView.setGestureTransformEnabled(isChecked);
             if (isChecked) {
-                Toast.makeText(this, "已开启图片手势 (单指拖拽平移 / 双指捏合缩放)", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Photo gestures enabled (drag to pan, pinch to zoom)", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "已锁定图片手势位移与缩放", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Photo gestures locked", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -182,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
             // Reset photo pan and scale back to 1:1 viewport alignment
             glSurfaceView.resetPhotoTransform();
 
-            Toast.makeText(this, "已校准水平：X/Y角度归零，图片位置与尺寸恢复默认对齐", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Calibrated: Tilt zeroed, photo reset to default alignment", Toast.LENGTH_SHORT).show();
         });
 
         // Blur slider (Aperture)
@@ -259,20 +269,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadCustomImage(Uri uri) {
-        Toast.makeText(this, "正在加载并构建3D纹理...", Toast.LENGTH_SHORT).show();
+        this.currentCustomImageUri = uri;
+        Toast.makeText(this, "Loading and building 3D texture...", Toast.LENGTH_SHORT).show();
         executor.execute(() -> {
             Bitmap bitmap = BitmapUtils.loadBitmapFromUri(this, uri, 2048);
             if (bitmap != null) {
                 glSurfaceView.setBitmap(bitmap);
                 runOnUiThread(() -> {
-                    Toast.makeText(this, "图片加载完成，3D空间已对齐", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Image loaded and aligned in 3D space", Toast.LENGTH_SHORT).show();
                 });
             } else {
                 runOnUiThread(() -> {
-                    Toast.makeText(this, "加载图片失败，请重试", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Failed to load image, please try again", Toast.LENGTH_SHORT).show();
                 });
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (currentCustomImageUri != null) {
+            outState.putString("KEY_IMAGE_URI", currentCustomImageUri.toString());
+        }
     }
 
     @Override

@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Space Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0E121E"/>
+      <stop offset="60%" stop-color="#121728"/>
+      <stop offset="100%" stop-color="#080A12"/>
+    </linearGradient>
+
+    <!-- Soft Ambient Center Glow -->
+    <radialGradient id="ambientGlow" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#0A84FF" stop-opacity="0.32"/>
+      <stop offset="50%" stop-color="#64D2FF" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Minimalist Frosted Glass Fill -->
+    <linearGradient id="glassFill" x1="20%" y1="10%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="40%" stop-color="#64D2FF" stop-opacity="0.10"/>
+      <stop offset="80%" stop-color="#0A84FF" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#BF5AF2" stop-opacity="0.16"/>
+    </linearGradient>
+
+    <!-- Glowing Glass Rim Stroke -->
+    <linearGradient id="rimStroke" x1="15%" y1="5%" x2="85%" y2="95%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="30%" stop-color="#64D2FF" stop-opacity="0.90"/>
+      <stop offset="70%" stop-color="#0A84FF" stop-opacity="0.80"/>
+      <stop offset="100%" stop-color="#BF5AF2" stop-opacity="0.85"/>
+    </linearGradient>
+
+    <!-- Optical Depth Core Glow -->
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="35%" stop-color="#64D2FF" stop-opacity="0.65"/>
+      <stop offset="75%" stop-color="#0A84FF" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#0A84FF" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Soft Drop Shadow -->
+    <filter id="cardShadow" x="-20%" y="-10%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="28" stdDeviation="22" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle App Icon Base -->
+  <rect width="512" height="512" rx="115" fill="url(#bgGrad)"/>
+  <rect width="512" height="512" rx="115" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="1.5"/>
+
+  <!-- Ambient Radial Glow -->
+  <circle cx="256" cy="245" r="210" fill="url(#ambientGlow)"/>
+
+  <!-- Tilted 3D Frosted Glass Viewport Pane -->
+  <g filter="url(#cardShadow)">
+    <!-- Perspective Card Body -->
+    <path d="M 166 142 
+             L 346 142 
+             A 22 22 0 0 1 367 158 
+             L 404 366 
+             A 18 18 0 0 1 386 388 
+             L 126 388 
+             A 18 18 0 0 1 108 366 
+             L 145 158 
+             A 22 22 0 0 1 166 142 Z"
+          fill="url(#glassFill)"/>
+
+    <!-- Luminous Rim Outline -->
+    <path d="M 166 142 
+             L 346 142 
+             A 22 22 0 0 1 367 158 
+             L 404 366 
+             A 18 18 0 0 1 386 388 
+             L 126 388 
+             A 18 18 0 0 1 108 366 
+             L 145 158 
+             A 22 22 0 0 1 166 142 Z"
+          fill="none" 
+          stroke="url(#rimStroke)" 
+          stroke-width="6.5" 
+          stroke-linejoin="round"/>
+
+    <!-- Clean Diagonal Specular Sheen (Subtle Glass Reflection) -->
+    <path d="M 166 142 L 236 142 L 156 388 L 126 388 A 18 18 0 0 1 108 366 L 145 158 A 22 22 0 0 1 166 142 Z"
+          fill="#FFFFFF" 
+          fill-opacity="0.06"/>
+  </g>
+
+  <!-- Central Optical Depth & Aperture Symbol -->
+  <g transform="translate(256, 265)">
+    <!-- Primary Outer Aperture Ring (Perspective Foreshortened) -->
+    <ellipse cx="0" cy="0" rx="72" ry="38" 
+             fill="none" 
+             stroke="#FFFFFF" 
+             stroke-width="3" 
+             stroke-opacity="0.9"/>
+
+    <!-- Secondary Concentric Depth Ring -->
+    <ellipse cx="0" cy="0" rx="46" ry="24" 
+             fill="none" 
+             stroke="#64D2FF" 
+             stroke-width="2" 
+             stroke-opacity="0.75"/>
+
+    <!-- Luminous Core Glow -->
+    <ellipse cx="0" cy="0" rx="36" ry="19" 
+             fill="url(#coreGlow)"/>
+
+    <!-- Center Optical Focal Point -->
+    <circle cx="0" cy="0" r="6" fill="#FFFFFF"/>
+  </g>
+</svg>

@@ -41,7 +41,7 @@
             android:fontFamily="sans-serif-medium"
             android:shadowColor="#80000000"
             android:shadowRadius="4"
-            android:text="X角度: 0.0° | Y角度: 0.0°"
+            android:text="Pitch (X): 0.0° | Roll (Y): 0.0°"
             android:textColor="@color/text_primary"
             android:textSize="13sp" />
     </LinearLayout>
@@ -76,10 +76,10 @@
                 android:layout_height="38dp"
                 android:layout_weight="1"
                 android:backgroundTint="#2E2E34"
-                android:text="选择图片"
+                android:text="@string/pick_image"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 app:cornerRadius="10dp" />
 
             <Button
@@ -90,10 +90,10 @@
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:backgroundTint="#2E2E34"
-                android:text="还原图片"
+                android:text="@string/reset_photo"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 app:cornerRadius="10dp" />
 
             <Button
@@ -104,10 +104,10 @@
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:backgroundTint="#0A84FF"
-                android:text="校准水平"
+                android:text="@string/calibrate"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 app:cornerRadius="10dp" />
         </LinearLayout>
 
@@ -120,10 +120,11 @@
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/tvGestureSwitchLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="手势位移与缩放 (拖拽/捏合):"
+                android:text="@string/gesture_pan_zoom"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
 
@@ -147,7 +148,7 @@
                 android:id="@+id/tvBlurLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="景深虚化强度:"
+                android:text="@string/blur_strength"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
 
@@ -183,7 +184,7 @@
                 android:id="@+id/tvFovLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="相机视场角FOV:"
+                android:text="@string/camera_fov"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
 
@@ -218,7 +219,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="视锥观察距离:"
+                android:text="@string/view_distance"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
 
@@ -249,7 +250,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            android:text="四角校准对齐 · 边缘柔化融合 · 单击屏幕可切换显示/隐藏UI"
+            android:text="@string/bottom_hint"
             android:textColor="#908E8E93"
             android:textSize="11sp" />
     </LinearLayout>

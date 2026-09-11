@@ -16,8 +16,33 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        release {
+            def keystorePropsFile = rootProject.file("keystore.properties")
+            if (keystorePropsFile.exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(keystorePropsFile))
+                def ksPath = props['storeFile'] ?: 'duodepth-release.jks'
+                def ksFile = file(ksPath)
+                if (!ksFile.exists()) {
+                    ksFile = rootProject.file(ksPath)
+                }
+                storeFile ksFile
+                storePassword props['storePassword'] ?: 'duodepth123'
+                keyAlias props['keyAlias'] ?: 'duodepth'
+                keyPassword props['keyPassword'] ?: 'duodepth123'
+            } else {
+                storeFile file('duodepth-release.jks')
+                storePassword 'duodepth123'
+                keyAlias 'duodepth'
+                keyPassword 'duodepth123'
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

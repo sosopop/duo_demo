@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Tilted 3D Frosted Glass Pane (Perspective Card) -->
+    <path
+        android:pathData="M38,30 L70,30 L80,78 L28,78 Z"
+        android:fillColor="#2564D2FF"
+        android:strokeColor="#FF64D2FF"
+        android:strokeWidth="1.8"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round" />
+
+    <!-- Optical Depth Ring -->
+    <path
+        android:pathData="M54,54 m-15,0 a15,8 0 1,0 30,0 a15,8 0 1,0 -30,0"
+        android:strokeColor="#EEFFFFFF"
+        android:strokeWidth="1.4" />
+
+    <!-- Inner Ring -->
+    <path
+        android:pathData="M54,54 m-9,0 a9,5 0 1,0 18,0 a9,5 0 1,0 -9,0"
+        android:strokeColor="#AA64D2FF"
+        android:strokeWidth="1.0" />
+
+    <!-- Center Dot -->
+    <path
+        android:pathData="M54,53 A1.5,1.5 0 1 0 54,55 A1.5,1.5 0 1 0 54,53 Z"
+        android:fillColor="#FFFFFFFF" />
+</vector>

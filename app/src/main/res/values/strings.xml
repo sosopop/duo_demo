@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">iPhone Duo 3D 景深模拟</string>
-    <string name="pick_image">加载截图</string>
-    <string name="calibrate">校准水平</string>
-    <string name="touch_mode">触控模拟</string>
-    <string name="sensor_mode">传感器</string>
-    <string name="blur_strength">光圈强度 (景深虚化)</string>
-    <string name="tilt_angle">倾斜角度: %1$.1f°</string>
-    <string name="hide_hud">隐藏面板 (双击屏幕亦可)</string>
-    <string name="show_hud">展开控制面板</string>
+    <string name="app_name">DuoDepth</string>
+    <string name="pick_image">Choose Image</string>
+    <string name="reset_photo">Reset Photo</string>
+    <string name="calibrate">Calibrate Level</string>
+    <string name="gesture_pan_zoom">Gesture Pan &amp; Zoom:</string>
+    <string name="blur_strength">Depth Blur Aperture:</string>
+    <string name="camera_fov">Camera FOV:</string>
+    <string name="view_distance">Viewpoint Distance:</string>
+    <string name="bottom_hint">Aligned Viewport · Enable Gestures to Pan/Zoom · Tap to Toggle HUD</string>
+    <string name="angle_format" formatted="false">Pitch (X): %.1f° | Roll (Y): %.1f°</string>
 </resources>

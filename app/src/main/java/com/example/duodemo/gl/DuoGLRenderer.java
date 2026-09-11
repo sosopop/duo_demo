@@ -41,7 +41,7 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
 
     // Texture
     private int textureId = 0;
-    private Bitmap pendingBitmap = null;
+    private Bitmap currentBitmap = null;
     private boolean hasNewBitmap = false;
     private int imageWidth = 1080;
     private int imageHeight = 2400;
@@ -53,8 +53,8 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
     private final float[] modelMatrix = new float[16];
 
     // Dynamic Tilt State (degrees)
-    // X角度: Negative = bottom edge hinge; Positive = top edge hinge
-    // Y角度: Negative = left edge hinge; Positive = right edge hinge
+    // Pitch (X): Negative = bottom edge hinge; Positive = top edge hinge
+    // Roll (Y): Negative = left edge hinge; Positive = right edge hinge
     private volatile float pitchDeg = 0f;
     private volatile float rollDeg = 0f;
 
@@ -123,8 +123,8 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
     }
 
     public synchronized void setBitmap(Bitmap bitmap) {
-        if (bitmap == null) return;
-        this.pendingBitmap = bitmap;
+        if (bitmap == null || bitmap.isRecycled()) return;
+        this.currentBitmap = bitmap;
         this.hasNewBitmap = true;
     }
 
@@ -219,6 +219,7 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        textureId = 0; // Previous GL context texture handle is invalidated in new context
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         GLES20.glDisable(GLES20.GL_DEPTH_TEST);
 
@@ -254,18 +255,20 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        // Upload new texture if requested
+        // Upload or re-upload texture if a new bitmap was set or if EGL context was recreated (textureId == 0)
         synchronized (this) {
-            if (hasNewBitmap && pendingBitmap != null && !pendingBitmap.isRecycled()) {
+            if ((hasNewBitmap || textureId == 0) && currentBitmap != null && !currentBitmap.isRecycled()) {
                 if (textureId != 0) {
                     GLES20.glDeleteTextures(1, new int[]{textureId}, 0);
                 }
-                textureId = ShaderUtils.loadTexture(pendingBitmap);
-                imageWidth = pendingBitmap.getWidth();
-                imageHeight = pendingBitmap.getHeight();
+                textureId = ShaderUtils.loadTexture(currentBitmap);
+                imageWidth = currentBitmap.getWidth();
+                imageHeight = currentBitmap.getHeight();
                 updatePhotoBaseSize();
-                resetPhotoTransform();
-                hasNewBitmap = false;
+                if (hasNewBitmap) {
+                    resetPhotoTransform();
+                    hasNewBitmap = false;
+                }
             }
         }
 
@@ -280,10 +283,10 @@ public class DuoGLRenderer implements GLSurfaceView.Renderer {
         // 3D Tilting of the Viewport Frosted Glass Plane:
         // The phone screen is the frosted glass in the user's hand!
         // As user tilts the phone:
-        // - X角度为负: 围绕下边沿 (Y = -halfH) 旋转，上边沿抬起向上 (Z > 0)
-        // - X角度为正: 围绕上边沿 (Y = +halfH) 旋转，下边沿抬起向上 (Z > 0)
-        // - Y角度为负: 围绕左边沿 (X = -halfW) 旋转，右边沿抬起向上 (Z > 0)
-        // - Y角度为正: 围绕右边沿 (X = +halfW) 旋转，左边沿抬起向上 (Z > 0)
+        // - Pitch < 0: Tilts around bottom edge (Y = -halfH), top edge lifts into Z > 0
+        // - Pitch > 0: Tilts around top edge (Y = +halfH), bottom edge lifts into Z > 0
+        // - Roll < 0: Tilts around left edge (X = -halfW), right edge lifts into Z > 0
+        // - Roll > 0: Tilts around right edge (X = +halfW), left edge lifts into Z > 0
         float pivotY = (pitchDeg <= 0f) ? -halfH : +halfH;
         float rotX = -pitchDeg; // Lifted edge tilts UP into Z > 0
 
