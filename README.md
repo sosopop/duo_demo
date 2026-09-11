@@ -27,6 +27,19 @@ It’s inspired by the futuristic dual-screen and spatial depth concepts (like t
 
 ---
 
+## 🎬 Real Device Demos
+
+<div align="center">
+
+| 📱 3D Perspective & Bokeh | 🪟 Magic Window on Desk | 🔄 Multi-Axis Dynamic Hinge |
+| :---: | :---: | :---: |
+| <img src="docs/demo/demo_app_bokeh.gif" width="230" alt="3D App Bokeh" /> | <img src="docs/demo/demo_homography_glass.gif" width="230" alt="Homography Alignment" /> | <img src="docs/demo/demo_multiaxis_tilt.gif" width="230" alt="Multi-axis Tilt" /> |
+| **Icons Melt into Silky Bokeh**<br/>Tilting lifts the icons into 16-tap Vogel blur | **Aligned with Physical Desk**<br/>Screen image perfectly matches the real mat beneath | **True 3D Relative Calibration**<br/>Smooth pitch & roll without gimbal lock |
+
+</div>
+
+---
+
 ## 🎮 How to Play
 
 | Gesture / Action | What Happens |
